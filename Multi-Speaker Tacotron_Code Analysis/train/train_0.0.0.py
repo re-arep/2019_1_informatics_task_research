@@ -21,6 +21,8 @@ from audio import save_audio, inv_spectrogram
 from text import sequence_to_text, text_to_sequence
 from datasets.datafeeder import DataFeeder, _prepare_inputs
 
+#라이브러리
+
 log = infolog.log
 
 
