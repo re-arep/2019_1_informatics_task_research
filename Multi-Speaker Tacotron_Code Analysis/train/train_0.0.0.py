@@ -333,4 +333,4 @@ def main():
 
 
 if __name__ == '__main__':
-    main()
+    main() #main 함수 실행
