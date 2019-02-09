@@ -22,6 +22,7 @@ from text import sequence_to_text, text_to_sequence
 from datasets.datafeeder import DataFeeder, _prepare_inputs
 
 #라이브러리
+#test
 
 log = infolog.log
 
