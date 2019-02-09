@@ -3,4 +3,4 @@
 2019년 1학기 과제연구 프로젝트
 
 프로젝트 명 : 
-음성 분석을 통한 노래하는 음성 합성 프로그램 제작
+Deep learning과 Tacotron을 활용한 Singable Voice Synthesis 기술 개발
