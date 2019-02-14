@@ -12,6 +12,7 @@ from functools import partial
 
 from hparams import hparams, hparams_debug_string
 from models import create_model, get_most_recent_checkpoint
+#hparams(학습 조건 있는 file) 불러오기
 
 from utils import ValueWindow, prepare_dirs
 from utils import infolog, warning, plot, load_hparams
@@ -21,10 +22,6 @@ from audio import save_audio, inv_spectrogram
 from text import sequence_to_text, text_to_sequence
 from datasets.datafeeder import DataFeeder, _prepare_inputs
 
-#라이브러리
-#test
-#test2
-
 log = infolog.log
 
 
@@ -32,7 +29,7 @@ def create_batch_inputs_from_texts(texts):
     sequences = [text_to_sequence(text) for text in texts]
 
     inputs = _prepare_inputs(sequences)
-    input_lengths = np.asarray([len(x) for x in inputs], dtype=np.int32)
+    input_lengths = np.asarray([len(x) for x in inputs], dtype=np.int32) # input_length는 inputs의 원소의 갯수
 
     for idx, (seq, text) in enumerate(zip(inputs, texts)):
         recovered_text = sequence_to_text(seq, skip_eos_and_pad=True)
