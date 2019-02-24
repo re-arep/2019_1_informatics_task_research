@@ -2,6 +2,12 @@ import os
 import time
 import math
 import argparse
+'''
+argparse
+명령행 파싱 모듈
+program --help 에서 --help 처럼 프로그램 실행시 지정한 명령을 실행할 수 있는 모듈이다
+main 함수에서 이용된다
+'''
 import traceback
 import subprocess
 import numpy as np
@@ -285,8 +291,23 @@ def train(log_dir, config):
 
 
 def main():
-    parser = argparse.ArgumentParser()
+    parser = argparse.ArgumentParser()  # argparse 라이브러리를 사용
 
+    '''
+    add_argument를 통해 명령행 옵션을 추가한다
+    
+    위치인자, 옵션인자
+    위치인자 : '명령행 옵션'에 -, -- 가 안붙는 형태, 선언 순서가 명령행 입력 순서에 영향을 끼친다
+    옵션인자 : '명령행 옵션'에 -, -- 가 붙는 형태
+    옵션인자는 명령행에 없어도 되지만 위치인자는 없으면 오류를 낸다
+    
+    add_argument('명령행 옵션', type=x, default=y, action='store_true', help='hello, python')
+    '명령행 옵션' : 사용하고 싶은 명령어 옵션 명명
+    type=x : 명령행 옵션을 통해 받는 변수의 type 지정
+    default=y : 해당 옵션을 사용하지 않아도 dafault=y 값이 사용됨. 평상시에는 None의 값을 가짐
+    action='store_true' : 명령행 옵션을 변수명으로 이용시 반환값을 True로 지정. default 값은 False
+    help='hello, python' : -h, --help 를 사용할때 나타나는 명령행 옵션 옆에서 명령행 옵션에 대한 설명을 서술하는 용도
+    '''
     parser.add_argument('--log_dir', default='logs')
     parser.add_argument('--data_paths', default='datasets/kr_example')
     parser.add_argument('--load_path', default=None)
@@ -299,15 +320,17 @@ def main():
     parser.add_argument('--checkpoint_interval', type=int, default=1000)
     parser.add_argument('--skip_path_filter',
             type=str2bool, default=False, help='Use only for debugging')
+    # utils 폴더의 __init__.py 내부의 str2bool 함수 사용
 
     parser.add_argument('--slack_url',
             help='Slack webhook URL to get periodic reports.')
     parser.add_argument('--git', action='store_true',
             help='If set, verify that the client is clean.')
 
-    config = parser.parse_args()
-    config.data_paths = config.data_paths.split(",")
+    config = parser.parse_args()  # 명령행 인자값 파싱
+    config.data_paths = config.data_paths.split(",")  # (주의!)data_paths(default:datasets/kr_example)를 split.
     setattr(hparams, "num_speakers", len(config.data_paths))
+    # hparams의 "num_speakers에 값 len(config.data_paths) 설정"
 
     prepare_dirs(config, hparams)
 
