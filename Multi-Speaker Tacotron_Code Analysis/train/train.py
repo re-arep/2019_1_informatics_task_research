@@ -329,7 +329,7 @@ def main():
 
     prepare_dirs(config, hparams)
 
-    log_path = os.path.join(config.model_dir, 'train.log')
+    log_path = os.path.join(config.model_dir, 'train.log')  # config.model_dir, 'train.log' 경로 합침
     infolog.init(log_path, config.model_dir, config.slack_url)
 
     tf.set_random_seed(config.random_seed)
