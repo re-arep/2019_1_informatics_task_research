@@ -292,7 +292,6 @@ def train(log_dir, config):
 
 def main():
     parser = argparse.ArgumentParser()  # argparse 라이브러리를 사용
-
     '''
     add_argument를 통해 명령행 옵션을 추가한다
     
@@ -318,23 +317,19 @@ def main():
     parser.add_argument('--summary_interval', type=int, default=100)
     parser.add_argument('--test_interval', type=int, default=500)
     parser.add_argument('--checkpoint_interval', type=int, default=1000)
-    parser.add_argument('--skip_path_filter',
-            type=str2bool, default=False, help='Use only for debugging')
+    parser.add_argument('--skip_path_filter', type=str2bool, default=False, help='Use only for debugging')
     # utils 폴더의 __init__.py 내부의 str2bool 함수 사용
 
-    parser.add_argument('--slack_url',
-            help='Slack webhook URL to get periodic reports.')
-    parser.add_argument('--git', action='store_true',
-            help='If set, verify that the client is clean.')
+    parser.add_argument('--slack_url', help='Slack webhook URL to get periodic reports.')
+    parser.add_argument('--git', action='store_true', help='If set, verify that the client is clean.')
 
     config = parser.parse_args()  # 명령행 인자값 파싱
     config.data_paths = config.data_paths.split(",")  # (주의!)data_paths(default:datasets/kr_example)를 split.
-    setattr(hparams, "num_speakers", len(config.data_paths))
-    # hparams의 "num_speakers에 값 len(config.data_paths) 설정"
+    setattr(hparams, "num_speakers", len(config.data_paths))  # hparams의 "num_speakers에 값 len(config.data_paths) 설정"
 
     prepare_dirs(config, hparams)
 
-    log_path = os.path.join(config.model_dir, 'train.log')
+    log_path = os.path.join(config.model_dir, 'train.log')  # config.model_dir, 'train.log' 경로 합침
     infolog.init(log_path, config.model_dir, config.slack_url)
 
     tf.set_random_seed(config.random_seed)
