@@ -10,19 +10,19 @@ from text.korean import jamo_to_korean
 
 
 # Mappings from symbol to numeric ID and vice versa:
-_symbol_to_id = {s: i for i, s in enumerate(symbols)}
-_id_to_symbol = {i: s for i, s in enumerate(symbols)}
-isEn=False
+_symbol_to_id = {s: i for i, s in enumerate(symbols)}  # 한글 : key id : 값인 dictionary (s : 한글 i : id)
+_id_to_symbol = {i: s for i, s in enumerate(symbols)}  # id : key 한글 : 값인 dictionary enumerate : 인덱스 번호와 컬렉션의 원소를 함께저장
+isEn=False  # 초기 isEn값 False
 
 
 # Regular expression matching text enclosed in curly braces:
 _curly_re = re.compile(r'(.*?)\{(.+?)\}(.*)')
 
-puncuation_table = str.maketrans({key: None for key in string.punctuation})
+puncuation_table = str.maketrans({key: None for key in string.punctuation})  # maketrans : 문자열을 치환해주는 함수
 
 def convert_to_en_symbols():
     '''Converts built-in korean symbols to english, to be used for english training
-    
+
 '''
     global _symbol_to_id, _id_to_symbol, isEn
     if not isEn:
@@ -35,7 +35,7 @@ def remove_puncuations(text):
     return text.translate(puncuation_table)
 
 def text_to_sequence(text, as_token=False):    
-    cleaner_names = [x.strip() for x in hparams.cleaners.split(',')]  # .strip() : 양쪽 공백 제거함수 hparams = tf.contrib.training.HParams(**basic_params) 위치 : hparams/hparams.py
+    cleaner_names = [x.strip() for x in hparams.cleaners.split(',')]  # .strip() : 양쪽 공백 제거함수 hparams dictionart를 ,단위로 잘라서 cleaner_names에 list로 저장 hparams = tf.contrib.training.HParams(**basic_params) 위치 : hparams/hparams.py
     if ('english_cleaners' in cleaner_names) and isEn==False:
         convert_to_en_symbols()
     return _text_to_sequence(text, cleaner_names, as_token)
@@ -52,6 +52,18 @@ def _text_to_sequence(text, cleaner_names, as_token):
 
         Returns:
             List of integers corresponding to the symbols in the text
+
+        텍스트 문자열을 텍스트의 기호에 해당하는 ID 시퀀스로 변환합니다.
+
+        텍스트에는 선택적으로 포함 된 중괄호로 묶인 ARPAbet 시퀀스가있을 수 있습니다.
+        그 안에. 예 : '{HH AW1 S S T AH0 N} 번가에서 좌회전'.
+
+        Args :
+             text : 시퀀스로 변환 할 문자열
+             cleaner_names : 텍스트를 실행하는 클리너 기능의 이름
+
+        return:
+             텍스트의 기호에 해당하는 정수 목록
     '''
     sequence = []
 
