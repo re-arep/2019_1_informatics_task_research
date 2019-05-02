@@ -18,7 +18,7 @@ isEn=False  # 초기 isEn값 False
 # Regular expression matching text enclosed in curly braces:
 _curly_re = re.compile(r'(.*?)\{(.+?)\}(.*)')
 
-puncuation_table = str.maketrans({key: None for key in string.punctuation})  # maketrans : 문자열을 치환해주는 함수
+puncuation_table = str.maketrans({key: None for key in string.punctuation})  # maketrans : 문자열을 치환해주는 함수 punctuation : 문자열 양쪽의 구두점 삭제
 
 def convert_to_en_symbols():
     '''Converts built-in korean symbols to english, to be used for english training
