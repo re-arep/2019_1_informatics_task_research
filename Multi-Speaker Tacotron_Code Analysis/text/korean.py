@@ -13,7 +13,7 @@ EOS = '~'
 PUNC = '!\'(),-.:;?'
 SPACE = ' '
 
-JAMO_LEADS = "".join([chr(_) for _ in range(0x1100, 0x1113)])
+JAMO_LEADS = "".join([chr(_) for _ in range(0x1100, 0x1113)])  # chr(_) : _의 유니코드에 해당하는 글자
 JAMO_VOWELS = "".join([chr(_) for _ in range(0x1161, 0x1176)])
 JAMO_TAILS = "".join([chr(_) for _ in range(0x11A8, 0x11C3)])
 
