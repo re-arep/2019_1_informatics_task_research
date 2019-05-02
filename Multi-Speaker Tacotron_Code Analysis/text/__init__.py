@@ -35,7 +35,7 @@ def remove_puncuations(text):
     return text.translate(puncuation_table)
 
 def text_to_sequence(text, as_token=False):    
-    cleaner_names = [x.strip() for x in hparams.cleaners.split(',')]
+    cleaner_names = [x.strip() for x in hparams.cleaners.split(',')]  # hparams = tf.contrib.training.HParams(**basic_params) 위치 : hparams/hparams.py
     if ('english_cleaners' in cleaner_names) and isEn==False:
         convert_to_en_symbols()
     return _text_to_sequence(text, cleaner_names, as_token)
