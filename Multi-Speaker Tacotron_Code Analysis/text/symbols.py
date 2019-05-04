@@ -7,10 +7,10 @@ through Unidecode. For other data, you can modify _characters. See TRAINING_DATA
 from jamo import h2j, j2h
 from jamo.jamo import _jamo_char_to_hcj
 
-from .korean import ALL_SYMBOLS, PAD, EOS
+from .korean import ALL_SYMBOLS, PAD, EOS  # PAD = '_' EOS = '~' ALL_SYMBOLS = PAD + EOS + VALID_CHARS (모든 문자들)
 
 # For english
 en_symbols = PAD+EOS+'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz!\'(),-.:;? '  #<-For deployment(Because korean ALL_SYMBOLS follow this convention)
 
-symbols = ALL_SYMBOLS # for korean
+symbols = ALL_SYMBOLS # 모든 한국어, 특수문자
 

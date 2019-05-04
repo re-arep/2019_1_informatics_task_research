@@ -5,7 +5,7 @@ SCALE_FACTOR = 1
 def f(num):
     return num // SCALE_FACTOR
 
-basic_params = {
+basic_params = {  # key: cleaners, value: english_cleaners인 dictionary
     # Comma-separated list of cleaners to run on text prior to training and eval. For non-English
     # text, you may want to use "basic_cleaners" or "transliteration_cleaners" See TRAINING_DATA.md.
     'cleaners': 'english_cleaners', #originally korean_cleaners
@@ -24,11 +24,11 @@ basic_params.update({
 })
 
 if True:
-    basic_params.update({
+    basic_params.update({ # dictionary
         'sample_rate': 22050, #originally 24000 (krbook), 22050(lj-data), 20000(others) 
     })
 
-basic_params.update({
+basic_params.update({  # dictionary
     # Model
     'model_type': 'single', # [single, simple, deepvoice]
     'speaker_embedding_size': f(16),
@@ -147,10 +147,10 @@ basic_params.update({
 
 
 # Default hyperparameters:
-hparams = tf.contrib.training.HParams(**basic_params)
+hparams = tf.contrib.training.HParams(**basic_params)  # 하이퍼 파라미터 세트 보관 클래스 설명 : https://www.tensorflow.org/api_docs/python/tf/contrib/training/HParams
 
 
 def hparams_debug_string():
     values = hparams.values()
-    hp = ['    %s: %s' % (name, values[name]) for name in sorted(values)]
-    return 'Hyperparameters:\n' + '\n'.join(hp)
+    hp = ['    %s: %s' % (name, values[name]) for name in sorted(values)]  # sorted : list를 정렬해서 name에 부여, 각 이름에 해당하는 이름과 값 넣어줌
+    return 'Hyperparameters:\n' + '\n'.join(hp)  # join : https://zetawiki.com/wiki/%ED%8C%8C%EC%9D%B4%EC%8D%AC_join()
