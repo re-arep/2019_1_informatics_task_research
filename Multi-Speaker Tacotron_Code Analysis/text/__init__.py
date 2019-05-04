@@ -36,7 +36,7 @@ def remove_puncuations(text):
 
 def text_to_sequence(text, as_token=False):    
     cleaner_names = [x.strip() for x in hparams.cleaners.split(',')]  # .strip() : 양쪽 공백 제거함수 hparams dictionart를 ,단위로 잘라서 cleaner_names에 list로 저장 hparams = tf.contrib.training.HParams(**basic_params) 위치 : hparams/hparams.py
-    if ('english_cleaners' in cleaner_names) and isEn==False:
+    if ('english_cleaners' in cleaner_names) and isEn==False:  # 영어에 해당, 몰라도됨
         convert_to_en_symbols()
     return _text_to_sequence(text, cleaner_names, as_token)
 
@@ -68,17 +68,17 @@ def _text_to_sequence(text, cleaner_names, as_token):
     sequence = []
 
     # Check for curly braces and treat their contents as ARPAbet:
-    while len(text):
+    while len(text):  # {}를 제외한 한글 및 특수기호(_, ~ 제외)의 id를 sequence에 넣는다
         m = _curly_re.match(text)
-        if not m:
-            sequence += _symbols_to_sequence(_clean_text(text, cleaner_names))
+        if not m:  # 문자안에 {}가 없으면
+            sequence += _symbols_to_sequence(_clean_text(text, cleaner_names))  # sequence list에 해당하는 한글 및 특수기호(_, ~ 제외)id 넣는다.
             break
-        sequence += _symbols_to_sequence(_clean_text(m.group(1), cleaner_names))
+        sequence += _symbols_to_sequence(_clean_text(m.group(1), cleaner_names))  # 문자 안에 {}가 있으면
         sequence += _arpabet_to_sequence(m.group(2))
-        text = m.group(3)
+        text = m.group(3)  # group : 매치된 문자열을 리턴한다.
 
     # Append EOS token
-    sequence.append(_symbol_to_id[EOS])
+    sequence.append(_symbol_to_id[EOS])  # ~의 id를 sequence에 넣는다.
 
     if as_token:
         return sequence_to_text(sequence, combine_jamo=True)
@@ -112,9 +112,9 @@ def sequence_to_text(sequence, skip_eos_and_pad=False, combine_jamo=False):
 
 
 
-def _clean_text(text, cleaner_names):
+def _clean_text(text, cleaner_names):  # 보류 ㅈ도모르겠다
     for name in cleaner_names:
-        cleaner = getattr(cleaners, name)
+        cleaner = getattr(cleaners, name)  # getattr : 이름에 해당하는 객체 속성의 값을 가져오는 Build-in 함수
         if not cleaner:
             raise Exception('Unknown cleaner: %s' % name)
         text = cleaner(text)
@@ -122,7 +122,7 @@ def _clean_text(text, cleaner_names):
 
 
 def _symbols_to_sequence(symbols):
-    return [_symbol_to_id[s] for s in symbols if _should_keep_symbol(s)]
+    return [_symbol_to_id[s] for s in symbols if _should_keep_symbol(s)]  # symbols가 한글 및 특수기호이지만 _,~가 아니면 그에 해당하는 id를 list에 넣는다.
 
 
 def _arpabet_to_sequence(text):
@@ -130,4 +130,4 @@ def _arpabet_to_sequence(text):
 
 
 def _should_keep_symbol(s):
-    return s in _symbol_to_id and s is not '_' and s is not '~'
+    return s in _symbol_to_id and s is not '_' and s is not '~'  # s가 한글 및 특수기호이고, _, ~가 아니면 True 리턴
