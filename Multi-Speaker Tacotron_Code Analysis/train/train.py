@@ -121,30 +121,30 @@ def save_and_plot(sequences, spectrograms,
 
 
 def train(log_dir, config):
-    config.data_paths = config.data_paths
+    config.data_paths = config.data_paths  # 파싱된 명령행 인자값 중 데이터 경로 : default='datasets/kr_example'
 
     data_dirs = [os.path.join(data_path, "data") \
             for data_path in config.data_paths]
-    num_speakers = len(data_dirs)
+    num_speakers = len(data_dirs) # 학습하는 화자 수 측정 : 단일화자 모델-1, 다중화자 모델-2
     config.num_test = config.num_test_per_speaker * num_speakers
 
-    if num_speakers > 1 and hparams.model_type not in ["deepvoice", "simple"]:
-        raise Exception("[!] Unkown model_type for multi-speaker: {}".format(config.model_type))
+    if num_speakers > 1 and hparams.model_type not in ["deepvoice", "simple"]:  # 다중화자 모델 학습일 때 모델 타입이 "deepvoice"나 "simple"이 아니라면
+        raise Exception("[!] Unkown model_type for multi-speaker: {}".format(config.model_type))  # hparams.modle_type을 config.model_type으로 오타남.
 
-    commit = get_git_commit() if config.git else 'None'
-    checkpoint_path = os.path.join(log_dir, 'model.ckpt')
+    commit = get_git_commit() if config.git else 'None'  # git 관련된거여서 무시
+    checkpoint_path = os.path.join(log_dir, 'model.ckpt')  # checkpoint_path 경로 지정-model.skpt 파일 경로
 
-    log(' [*] git recv-parse HEAD:\n%s' % get_git_revision_hash())
-    log('='*50)
+    log(' [*] git recv-parse HEAD:\n%s' % get_git_revision_hash())  # git log
+    log('='*50)  # 줄 구분용 =====
     #log(' [*] dit diff:\n%s' % get_git_diff())
-    log('='*50)
-    log(' [*] Checkpoint path: %s' % checkpoint_path)
+    log('='*50)  # 줄 구분용 =====
+    log(' [*] Checkpoint path: %s' % checkpoint_path)  # check_point 경로 출력
     log(' [*] Loading training data from: %s' % data_dirs)
     log(' [*] Using model: %s' % config.model_dir)
     log(hparams_debug_string())
 
     # Set up DataFeeder:
-    coord = tf.train.Coordinator()
+    coord = tf.train.Coordinator()  # 쓰레드 사용 선언
     with tf.variable_scope('datafeeder') as scope:
         train_feeder = DataFeeder(
                 coord, data_dirs, hparams, config, 32,
