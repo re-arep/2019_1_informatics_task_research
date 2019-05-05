@@ -31,8 +31,8 @@ from datasets.datafeeder import DataFeeder, _prepare_inputs
 log = infolog.log
 
 
-def create_batch_inputs_from_texts(texts):
-    sequences = [text_to_sequence(text) for text in texts]
+def create_batch_inputs_from_texts(texts):  # create_batch_inputs_from_texts 함수 define
+    sequences = [text_to_sequence(text) for text in texts]  # 받은 값을 전부 text_to_sequence함수 위치 : text/__init__.py
 
     inputs = _prepare_inputs(sequences)
     input_lengths = np.asarray([len(x) for x in inputs], dtype=np.int32) # input_length는 inputs의 원소의 갯수
