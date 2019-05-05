@@ -151,6 +151,6 @@ hparams = tf.contrib.training.HParams(**basic_params)  # 하이퍼 파라미터 
 
 
 def hparams_debug_string():
-    values = hparams.values()
+    values = hparams.values()  # hparams의 value 값들 리턴
     hp = ['    %s: %s' % (name, values[name]) for name in sorted(values)]  # sorted : list를 정렬해서 name에 부여, 각 이름에 해당하는 이름과 값 넣어줌
-    return 'Hyperparameters:\n' + '\n'.join(hp)  # join : https://zetawiki.com/wiki/%ED%8C%8C%EC%9D%B4%EC%8D%AC_join()
+    return 'Hyperparameters:\n' + '\n'.join(hp)  # hp의 원소들 사이에 '\n'을 넣어서 리턴
