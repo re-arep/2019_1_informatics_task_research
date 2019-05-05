@@ -149,6 +149,7 @@ def train(log_dir, config):
         train_feeder = DataFeeder(
                 coord, data_dirs, hparams, config, 32,
                 data_type='train', batch_size=hparams.batch_size)
+        # def __init__(self, coordinator, data_dirs, hparams, config, batches_per_group, data_type, batch_size):
         test_feeder = DataFeeder(
                 coord, data_dirs, hparams, config, 8,
                 data_type='test', batch_size=config.num_test)
