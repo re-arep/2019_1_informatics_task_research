@@ -23,8 +23,8 @@ class Tacotron():
             mel_targets=None, linear_targets=None, loss_coeff=None,
             rnn_decoder_test_mode=False, is_randomly_initialized=False,
         ):
-        is_training = linear_targets is not None
-        self.is_randomly_initialized = is_randomly_initialized
+        is_training = linear_targets is not None  # linear_targets가 초기값(None)이면 False
+        self.is_randomly_initialized = is_randomly_initialized  # 초기값 False
 
         with tf.variable_scope('inference') as scope:
             hp = self._hparams
