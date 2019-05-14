@@ -40,7 +40,7 @@ def text_to_sequence(text, as_token=False):
         convert_to_en_symbols()
     return _text_to_sequence(text, cleaner_names, as_token)
 
-def _text_to_sequence(text, cleaner_names, as_token):
+def _text_to_sequence(text, cleaner_names, as_token):  # text를 id로 전환
     '''Converts a string of text to a sequence of IDs corresponding to the symbols in the text.
 
         The text can optionally have ARPAbet sequences enclosed in curly braces embedded
