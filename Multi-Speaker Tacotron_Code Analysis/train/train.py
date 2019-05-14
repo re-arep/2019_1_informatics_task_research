@@ -53,36 +53,36 @@ def get_git_commit():
     log('Git commit: %s' % commit)
     return commit
 
-
-def add_stats(model, model2=None, scope_name='train'):
-    with tf.variable_scope(scope_name) as scope:
+##########################################################
+def add_stats(model, model2=None, scope_name='train'):  # 주의!!!!!!!!!! 여기부분 다시 봐야함 주석
+    with tf.variable_scope(scope_name) as scope:  # scope_name변수로 이름변위
         summaries = [
-                tf.summary.scalar('loss_mel', model.mel_loss),
-                tf.summary.scalar('loss_linear', model.linear_loss),
-                tf.summary.scalar('loss', model.loss_without_coeff),
+                tf.summary.scalar('loss_mel', model.mel_loss),  # 'loss_mel'이라는 이름으로 model.mel_less값 기록
+                tf.summary.scalar('loss_linear', model.linear_loss),  # 'loss_linear'이라는 이름으로 model.linear_loss값 기록
+                tf.summary.scalar('loss', model.loss_without_coeff),  # 'loss'이라는 이름으로 model.loss_without_coeff값 기록
         ]
 
-        if scope_name == 'train':
+        if scope_name == 'train':  # 만약 이름범위가 'train'일때
             gradient_norms = [tf.norm(grad) for grad in model.gradients if grad is not None]
 
-            summaries.extend([
+            summaries.extend([  # supparies 리스트에 다음 리스트를 더함
                     tf.summary.scalar('learning_rate', model.learning_rate),
                     tf.summary.scalar('max_gradient_norm', tf.reduce_max(gradient_norms)),
             ])
 
-    if model2 is not None:
-        with tf.variable_scope('gap_test-train') as scope:
-            summaries.extend([
+    if model2 is not None:  # model2가 None이 아닐때 >> test_model을 사용할떄
+        with tf.variable_scope('gap_test-train') as scope:  # 'gap_test-train'이라는 이름변위 >> test_model과 model의 gap
+            summaries.extend([  # summaries 리스트에 다음 리스트를 더함
                     tf.summary.scalar('loss_mel',
-                            model.mel_loss - model2.mel_loss),
+                            model.mel_loss - model2.mel_loss),  # 'loss_mel'이라는 이름으로 test_model과 model의 mel_loss 차잇값 기록
                     tf.summary.scalar('loss_linear', 
-                            model.linear_loss - model2.linear_loss),
+                            model.linear_loss - model2.linear_loss),  # 'loss_linear'이라는 이름으로 test_model과 model의 linear_loss 차잇값 기록
                     tf.summary.scalar('loss',
-                            model.loss_without_coeff - model2.loss_without_coeff),
+                            model.loss_without_coeff - model2.loss_without_coeff),  # 'loss'이라는 이름으로 test_model과 model의 loss_without_coeff 차잇값 기록
             ])
 
     return tf.summary.merge(summaries)
-
+#############################################################
 
 def save_and_plot_fn(args, log_dir, step, loss, prefix):
     idx, (seq, spec, align) = args
@@ -159,7 +159,7 @@ def train(log_dir, config):
     global_step = tf.Variable(0, name='global_step', trainable=False)
 
     with tf.variable_scope('model') as scope:
-        model = create_model(hparams)
+        model = create_model(hparams)  # Tacotron 모델 생성
         model.initialize(
                 train_feeder.inputs, train_feeder.input_lengths,
                 num_speakers,  train_feeder.speaker_id,
@@ -172,7 +172,7 @@ def train(log_dir, config):
         train_stats = add_stats(model, scope_name='stats') # legacy
 
     with tf.variable_scope('model', reuse=True) as scope:
-        test_model = create_model(hparams)
+        test_model = create_model(hparams)  # Tacotron test모델 생성
         test_model.initialize(
                 test_feeder.inputs, test_feeder.input_lengths,
                 num_speakers, test_feeder.speaker_id,
@@ -181,19 +181,19 @@ def train(log_dir, config):
                 is_randomly_initialized=is_randomly_initialized)
         test_model.add_loss()
 
-    test_stats = add_stats(test_model, model, scope_name='test')
+    test_stats = add_stats(test_model, model, scope_name='test')  # model의 loss값같은것들을 tensorboard에 기록 / model에 test_model, model2에 model
     test_stats = tf.summary.merge([test_stats, train_stats])
 
     # Bookkeeping:
     step = 0
-    time_window = ValueWindow(100)
+    time_window = ValueWindow(100)  # ValueWindow 클래스 window_size = 100
     loss_window = ValueWindow(100)
-    saver = tf.train.Saver(max_to_keep=None, keep_checkpoint_every_n_hours=2)
+    saver = tf.train.Saver(max_to_keep=None, keep_checkpoint_every_n_hours=2)  # 2시간에 한번씩 자동저장, checkpoint 삭제 안됨
 
     sess_config = tf.ConfigProto(
-            log_device_placement=False,
-            allow_soft_placement=True)
-    sess_config.gpu_options.allow_growth=True
+            log_device_placement=False,  # log_device_placement 작성하는동안 할당장치 알려줌.
+            allow_soft_placement=True)  # allow_soft_placement False면 GPU없을때 오류남
+    sess_config.gpu_options.allow_growth=True  # 탄력적으로 GPU메모리 사용
 
     # Train!
     #with tf.Session(config=sess_config) as sess:
