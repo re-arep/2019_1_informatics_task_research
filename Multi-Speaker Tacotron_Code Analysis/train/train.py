@@ -196,42 +196,42 @@ def train(log_dir, config):
 
     # Train!
     #with tf.Session(config=sess_config) as sess:
-    with tf.Session() as sess:
+    with tf.Session() as sess:  # with문 내의 모든 명령들은 CPU 혹은 GPU 사용 선언
         try:
-            summary_writer = tf.summary.FileWriter(log_dir, sess.graph)
-            sess.run(tf.global_variables_initializer())
+            summary_writer = tf.summary.FileWriter(log_dir, sess.graph)  # summary 오퍼레이션이 평가된 결과 및 텐서보드 그래프를 파라미터 형식으로 log_dir 에 저장
+            sess.run(tf.global_variables_initializer())  # 데이터셋이 로드되고 그래프가 모두 정의되면 변수를 초기화하여 훈련 시작
 
-            if config.load_path:
+            if config.load_path:  # log의 설정 값들 경로를 지정하였다면
                 # Restore from a checkpoint if the user requested it.
-                restore_path = get_most_recent_checkpoint(config.model_dir)
-                saver.restore(sess, restore_path)
-                log('Resuming from checkpoint: %s at commit: %s' % (restore_path, commit), slack=True)
-            elif config.initialize_path:
-                restore_path = get_most_recent_checkpoint(config.initialize_path)
-                saver.restore(sess, restore_path)
-                log('Initialized from checkpoint: %s at commit: %s' % (restore_path, commit), slack=True)
+                restore_path = get_most_recent_checkpoint(config.model_dir)  # 가장 마지막에 저장된 파일경로 저장
+                saver.restore(sess, restore_path)  # restore_path 값 가져오기
+                log('Resuming from checkpoint: %s at commit: %s' % (restore_path, commit), slack=True)  # git과 slack을 이용한 log 출력
+            elif config.initialize_path:  # log의 설정 값들로 초기화하여 사용하기로 지정하였다면
+                restore_path = get_most_recent_checkpoint(config.initialize_path)  # 지정된 경로에서 가장 마지막에 저장된 파일경로 저장
+                saver.restore(sess, restore_path)  # restore_path 값 가져오기
+                log('Initialized from checkpoint: %s at commit: %s' % (restore_path, commit), slack=True)  # git과 slack을 이용한 log 출력
 
-                zero_step_assign = tf.assign(global_step, 0)
-                sess.run(zero_step_assign)
+                zero_step_assign = tf.assign(global_step, 0)  # global_step의 텐서 객체 참조 변수 값을 0으로 바꿔주는 명령어 지정
+                sess.run(zero_step_assign)  # 변수들을 모두 0으로 바꾸는 명령어 실행
 
-                start_step = sess.run(global_step)
+                start_step = sess.run(global_step)  # global_step 값 부분을 시작지점으로 하여 연산 시작
                 log('='*50)
                 log(' [*] Global step is reset to {}'. \
-                        format(start_step))
+                        format(start_step))  # 즉, 연산 시작 부분이 0으로 초기화 되었다고 알려줌.
                 log('='*50)
             else:
-                log('Starting new training run at commit: %s' % commit, slack=True)
+                log('Starting new training run at commit: %s' % commit, slack=True)  # 과거의 데이터를 사용하지 않을 경우 새로운 학습이라고 log 출력
 
-            start_step = sess.run(global_step)
+            start_step = sess.run(global_step)  # 연산 시작지점 가져오기
 
             train_feeder.start_in_session(sess, start_step)
             test_feeder.start_in_session(sess, start_step)
 
-            while not coord.should_stop():
-                start_time = time.time()
+            while not coord.should_stop():  # 쓰레드가 멈춰야하는 상황이 아니라면
+                start_time = time.time()  # 시작시간 지정(1970년 1월 1일 이후 경과된 시간을 UTC 기준으로 초로 반환)
                 step, loss, opt = sess.run(
                         [global_step, model.loss_without_coeff, model.optimize],
-                        feed_dict=model.get_dummy_feed_dict())
+                        feed_dict=model.get_dummy_feed_dict())  # step 값은 global_step 값으로 지정, loss 값은
 
                 time_window.append(time.time() - start_time)
                 loss_window.append(loss)
