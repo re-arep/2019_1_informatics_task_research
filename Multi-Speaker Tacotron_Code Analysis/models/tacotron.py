@@ -26,31 +26,31 @@ class Tacotron():
         is_training = linear_targets is not None  # linear_targets가 초기값(None)이면 False
         self.is_randomly_initialized = is_randomly_initialized  # 초기값 False
 
-        with tf.variable_scope('inference') as scope:
+        with tf.variable_scope('inference') as scope:  # 'inference'라는 이름으로 묶음
             hp = self._hparams
-            batch_size = tf.shape(inputs)[0]
+            batch_size = tf.shape(inputs)[0]  # 첫번째 차원은 샘플 수, 두번째 차원은 입력 특성 수 (여기선 샘플수)
 
             # Embeddings
             char_embed_table = tf.get_variable(
-                    'embedding', [len(symbols), hp.embedding_size], dtype=tf.float32,
-                    initializer=tf.truncated_normal_initializer(stddev=0.5))
+                    'embedding', [len(symbols), hp.embedding_size], dtype=tf.float32,  # list : variable이 소속될 collection에 대한 리스트 한글의 종류수와 임베딩 크기에 속해있다. , 'embedding이라는 이름의 공유 변수 생성
+                    initializer=tf.truncated_normal_initializer(stddev=0.5))  # initializer : 초기화한 가중치 dtype : 리턴한 tensor의 타입
             # [N, T_in, embedding_size]
             char_embedded_inputs = \
-                    tf.nn.embedding_lookup(char_embed_table, inputs)
+                    tf.nn.embedding_lookup(char_embed_table, inputs)  # inputs의 인덱스에 따라 char_embed_table값 리턴
 
             self.num_speakers = num_speakers
-            if self.num_speakers > 1:
-                if hp.speaker_embedding_size != 1:
-                    speaker_embed_table = tf.get_variable(
-                            'speaker_embedding',
-                            [self.num_speakers, hp.speaker_embedding_size], dtype=tf.float32,
-                            initializer=tf.truncated_normal_initializer(stddev=0.5))
+            if self.num_speakers > 1:  # 다중화자일때
+                if hp.speaker_embedding_size != 1:  # hparams의 speaker_embedding_size값이 1이 아닐때
+                    speaker_embed_table = tf.get_variable(  # 공유변수 생성
+                            'speaker_embedding',  # 'speaker_embedding'이라는 이름의
+                            [self.num_speakers, hp.speaker_embedding_size], dtype=tf.float32,  # num_speakers와 speaker_embedding_size에 속해있는
+                            initializer=tf.truncated_normal_initializer(stddev=0.5))  # 초기화값 가중치
                     # [N, T_in, speaker_embedding_size]
-                    speaker_embed = tf.nn.embedding_lookup(speaker_embed_table, speaker_id)
-
-                if hp.model_type == 'deepvoice':
-                    if hp.speaker_embedding_size == 1:
-                        before_highway = get_embed(
+                    speaker_embed = tf.nn.embedding_lookup(speaker_embed_table, speaker_id)  # speaker의 인덱스에 따라 speaker_embed_table값 리턴
+##############################################################추가설명 필요 일단 다중화자일때인듯
+                if hp.model_type == 'deepvoice':  # deepvoice일때
+                    if hp.speaker_embedding_size == 1:  # hparams의 speaker_embedding_size값이 1일때
+                        before_highway = get_embed(  #########################get_embed가 뭐지...
                                 speaker_id, self.num_speakers, 
                                 hp.enc_prenet_sizes[-1], "before_highway")
                         encoder_rnn_init_state = get_embed(
@@ -64,9 +64,9 @@ class Tacotron():
                                 speaker_id, self.num_speakers, 
                                 hp.dec_rnn_size, "decoder_rnn_init_states{}".format(idx + 1)) \
                                         for idx in range(hp.dec_layer_num)]
-                    else:
+                    else:  # hparams의 speaker_embedding_size값이 1이 아닐때
                         deep_dense = lambda x, dim: \
-                                tf.layers.dense(x, dim, activation=tf.nn.softsign)
+                                tf.layers.dense(x, dim, activation=tf.nn.softsign)  # input:x, units:dim, 활성화함수로 softsign사용, lambda함수 예제 (lambda x,y: x + y)(10, 20) =>> 30
 
                         before_highway = deep_dense(
                                 speaker_embed, hp.enc_prenet_sizes[-1])
@@ -79,22 +79,22 @@ class Tacotron():
                                 speaker_embed, hp.dec_rnn_size) for _ in range(hp.dec_layer_num)]
 
                     speaker_embed = None # deepvoice does not use speaker_embed directly
-                elif hp.model_type == 'simple':
+                elif hp.model_type == 'simple':  # modeltype이 deepvoice가 아니라 simple일때
                     before_highway = None
                     encoder_rnn_init_state = None
                     attention_rnn_init_state = None
-                    decoder_rnn_init_states = None
+                    decoder_rnn_init_states = None  # 전부 값 x
                 else:
-                    raise Exception(" [!] Unkown multi-speaker model type: {}".format(hp.model_type))
-            else:
+                    raise Exception(" [!] Unkown multi-speaker model type: {}".format(hp.model_type))  # multi-speaker model type이 아니라고 에러메세지 출력
+            else:  # 스피커의 수가 1명이면
                 speaker_embed = None
                 before_highway = None
                 encoder_rnn_init_state = None
                 attention_rnn_init_state = None
-                decoder_rnn_init_states = None
-
+                decoder_rnn_init_states = None  # 전부 값 x
+##############################################################
             ##############
-            # Encoder
+            # Encoder (특수문자, 한글 자모음text를 숫자로)
             ##############
 
             # [N, T_in, enc_prenet_sizes[-1]]
