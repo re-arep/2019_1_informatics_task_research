@@ -46,12 +46,12 @@ class Tacotron():
                             [self.num_speakers, hp.speaker_embedding_size], dtype=tf.float32,  # num_speakers와 speaker_embedding_size에 속해있는
                             initializer=tf.truncated_normal_initializer(stddev=0.5))  # 초기화값 가중치
                     # [N, T_in, speaker_embedding_size]
-                    speaker_embed = tf.nn.embedding_lookup(speaker_embed_table, speaker_id)  # speaker의 인덱스에 따라 speaker_embed_table값 리턴
-##############################################################추가설명 필요 일단 다중화자일때인듯
+                    speaker_embed = tf.nn.embedding_lookup(speaker_embed_table, speaker_id)  # speaker의 인덱스에 따라 speaker_embed_table값 리턴 (Tensor)
+############################################################## 추가설명 필요
                 if hp.model_type == 'deepvoice':  # deepvoice일때
                     if hp.speaker_embedding_size == 1:  # hparams의 speaker_embedding_size값이 1일때
-                        before_highway = get_embed(  #########################get_embed가 뭐지...
-                                speaker_id, self.num_speakers, 
+                        before_highway = get_embed(  # def get_embed(inputs, num_inputs, embed_size, name):
+                                speaker_id, self.num_speakers,  # speaker_id의 인덱스에 따라 embed_table값 리턴
                                 hp.enc_prenet_sizes[-1], "before_highway")
                         encoder_rnn_init_state = get_embed(
                                 speaker_id, self.num_speakers, 
@@ -64,26 +64,35 @@ class Tacotron():
                                 speaker_id, self.num_speakers, 
                                 hp.dec_rnn_size, "decoder_rnn_init_states{}".format(idx + 1)) \
                                         for idx in range(hp.dec_layer_num)]
+##############################################################
                     else:  # hparams의 speaker_embedding_size값이 1이 아닐때
                         deep_dense = lambda x, dim: \
-                                tf.layers.dense(x, dim, activation=tf.nn.softsign)  # input:x, units:dim, 활성화함수로 softsign사용, lambda함수 예제 (lambda x,y: x + y)(10, 20) =>> 30
+                                tf.layers.dense(x, dim, activation=tf.nn.softsign)
+                        # input:x, units:dim, 활성화함수로 softsign사용
+                        # lambda함수 예제 (lambda x,y: x + y)(10, 20) =>> 30
+                        # tf.layers.dense( inputs, units, activation)
+                        # inputs는 앞의 레이어를 정의
+                        # units는 이 레이어에 크기를 정의
+                        # 마지막으로 activation은 sigmoid나,ReLu와 같은 Activation 함수
+                        # dense는 히든레이어를 구현하는 함수이다.
+                        # https://bcho.tistory.com/1196
 
                         before_highway = deep_dense(
-                                speaker_embed, hp.enc_prenet_sizes[-1])
+                                speaker_embed, hp.enc_prenet_sizes[-1])  # 앞 레이어 : speaker_embed 레이어 수 : hp.enc_prenet_sizes[-1] (기본값 128)
                         encoder_rnn_init_state = deep_dense(
-                                speaker_embed, hp.enc_rnn_size * 2)
+                                speaker_embed, hp.enc_rnn_size * 2)  # 앞 레이어 : speaker_embed 레이어 수 : hp.enc_rnn_size * 2 (기본값 128 * 2)
 
                         attention_rnn_init_state = deep_dense(
-                                speaker_embed, hp.attention_state_size)
+                                speaker_embed, hp.attention_state_size)  # 앞 레이어 : speaker_embed 레이어 수 : hp.attention_state_size (기본값 256)
                         decoder_rnn_init_states = [deep_dense(
-                                speaker_embed, hp.dec_rnn_size) for _ in range(hp.dec_layer_num)]
+                                speaker_embed, hp.dec_rnn_size) for _ in range(hp.dec_layer_num)]  # hp.dec_layer_num 수만큼 (기본값 2) 레이어 list
 
-                    speaker_embed = None # deepvoice does not use speaker_embed directly
+                    speaker_embed = None  # deepvoice does not use speaker_embed directly 딥보이스는 speaker_embed를 바로 사용하지 않는다.
                 elif hp.model_type == 'simple':  # modeltype이 deepvoice가 아니라 simple일때
                     before_highway = None
                     encoder_rnn_init_state = None
                     attention_rnn_init_state = None
-                    decoder_rnn_init_states = None  # 전부 값 x
+                    decoder_rnn_init_states = None  # 레이어 전부 x
                 else:
                     raise Exception(" [!] Unkown multi-speaker model type: {}".format(hp.model_type))  # multi-speaker model type이 아니라고 에러메세지 출력
             else:  # 스피커의 수가 1명이면
@@ -91,14 +100,13 @@ class Tacotron():
                 before_highway = None
                 encoder_rnn_init_state = None
                 attention_rnn_init_state = None
-                decoder_rnn_init_states = None  # 전부 값 x
-##############################################################
+                decoder_rnn_init_states = None  # 레이어 전부 x
             ##############
             # Encoder (특수문자, 한글 자모음text를 숫자로)
             ##############
 
             # [N, T_in, enc_prenet_sizes[-1]]
-            prenet_outputs = prenet(char_embedded_inputs, is_training,
+            prenet_outputs = prenet(char_embedded_inputs, is_training,  #
                     hp.enc_prenet_sizes, hp.dropout_prob,
                     scope='prenet')
 
@@ -113,7 +121,7 @@ class Tacotron():
 
 
             ##############
-            # Attention
+            # Attention (중요!)
             ##############
 
             # For manaul control of attention
