@@ -15,14 +15,14 @@ def get_embed(inputs, num_inputs, embed_size, name):
     return tf.nn.embedding_lookup(embed_table, inputs)
 
 
-def prenet(inputs, is_training, layer_sizes, drop_prob, scope=None):
+def prenet(inputs, is_training, layer_sizes, drop_prob, scope=None):  # 신경망 레이어
     x = inputs
     drop_rate = drop_prob if is_training else 0.0
     with tf.variable_scope(scope or 'prenet'):  # prenet이라는 이름으로 묶음
         for i, size in enumerate(layer_sizes):  # layer_sizes list의 값과 순서를 차례대로 넣음
-            dense = tf.layers.dense(x, units=size, activation=tf.nn.relu, name='dense_%d' % (i+1))
-            x = tf.layers.dropout(dense, rate=drop_rate, name='dropout_%d' % (i+1))  # dense를 drop_rate정도만큼 dropout한다. 이름은  dropout_순서
-    return x
+            dense = tf.layers.dense(x, units=size, activation=tf.nn.relu, name='dense_%d' % (i+1))  # input 레이어 다음으로, layer_size의 레이어 크기로 히든레이어 len(layer_size)개만큼 레이어 존재
+            x = tf.layers.dropout(dense, rate=drop_rate, name='dropout_%d' % (i+1))  # dense를 drop_rate만큼 dropout함
+    return x  # 윗 레이어들 리턴
 
 def cbhg(inputs, input_lengths, is_training, 
         bank_size, bank_channel_size,

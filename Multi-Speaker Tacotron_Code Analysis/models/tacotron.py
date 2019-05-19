@@ -106,7 +106,7 @@ class Tacotron():
             ##############
 
             # [N, T_in, enc_prenet_sizes[-1]]
-            prenet_outputs = prenet(char_embedded_inputs, is_training,  #
+            prenet_outputs = prenet(char_embedded_inputs, is_training,  # 다음 변수에 따른 조건으로 신경망 생성
                     hp.enc_prenet_sizes, hp.dropout_prob,
                     scope='prenet')
 
