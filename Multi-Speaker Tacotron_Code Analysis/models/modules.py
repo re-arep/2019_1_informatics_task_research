@@ -18,10 +18,10 @@ def get_embed(inputs, num_inputs, embed_size, name):
 def prenet(inputs, is_training, layer_sizes, drop_prob, scope=None):
     x = inputs
     drop_rate = drop_prob if is_training else 0.0
-    with tf.variable_scope(scope or 'prenet'):
-        for i, size in enumerate(layer_sizes):
+    with tf.variable_scope(scope or 'prenet'):  # prenet이라는 이름으로 묶음
+        for i, size in enumerate(layer_sizes):  # layer_sizes list의 값과 순서를 차례대로 넣음
             dense = tf.layers.dense(x, units=size, activation=tf.nn.relu, name='dense_%d' % (i+1))
-            x = tf.layers.dropout(dense, rate=drop_rate, name='dropout_%d' % (i+1))
+            x = tf.layers.dropout(dense, rate=drop_rate, name='dropout_%d' % (i+1))  # dense를 drop_rate정도만큼 dropout한다. 이름은  dropout_순서
     return x
 
 def cbhg(inputs, input_lengths, is_training, 

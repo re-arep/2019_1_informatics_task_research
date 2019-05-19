@@ -53,9 +53,8 @@ def get_git_commit():
     log('Git commit: %s' % commit)
     return commit
 
-##########################################################
-def add_stats(model, model2=None, scope_name='train'):  # 주의!!!!!!!!!! 여기부분 다시 봐야함 주석
-    with tf.variable_scope(scope_name) as scope:  # scope_name변수로 이름변위
+def add_stats(model, model2=None, scope_name='train'):
+    with tf.variable_scope(scope_name) as scope:  # scope_name이름으로 묶음
         summaries = [
                 tf.summary.scalar('loss_mel', model.mel_loss),  # 'loss_mel'이라는 이름으로 model.mel_less값 기록
                 tf.summary.scalar('loss_linear', model.linear_loss),  # 'loss_linear'이라는 이름으로 model.linear_loss값 기록
@@ -81,8 +80,7 @@ def add_stats(model, model2=None, scope_name='train'):  # 주의!!!!!!!!!! 여�
                             model.loss_without_coeff - model2.loss_without_coeff),  # 'loss'이라는 이름으로 test_model과 model의 loss_without_coeff 차잇값 기록
             ])
 
-    return tf.summary.merge(summaries)
-#############################################################
+    return tf.summary.merge(summaries)  # summaries 병합
 
 def save_and_plot_fn(args, log_dir, step, loss, prefix):
     idx, (seq, spec, align) = args
