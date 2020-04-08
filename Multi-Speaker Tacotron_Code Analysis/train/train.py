@@ -113,6 +113,7 @@ def save_and_plot(sequences, spectrograms,
     fn = partial(save_and_plot_fn,
         log_dir=log_dir, step=step, loss=loss, prefix=prefix)
     items = list(enumerate(zip(sequences, spectrograms, alignments)))
+    # enumerate는 반복문의 index와 value를 tuple로 반환, zip은 동일한 개수로 이루어진 자료형을 묶어 주는 역할을 하는 함수
 
     parallel_run(fn, items, parallel=False)
     log('Test finished for step {}.'.format(step))
@@ -230,36 +231,35 @@ def train(log_dir, config):
                 start_time = time.time()  # 시작시간 지정(1970년 1월 1일 이후 경과된 시간을 UTC 기준으로 초로 반환)
                 step, loss, opt = sess.run(
                         [global_step, model.loss_without_coeff, model.optimize],
-                        feed_dict=model.get_dummy_feed_dict())  # step 값은 global_step 값으로 지정, loss 값은
-
+                        feed_dict=model.get_dummy_feed_dict())  # 각각의 값들은 dict 안에 있는 값에 1:1 대응. feed_dict=는 텐서 변수에 값을 대응하는 역할
                 time_window.append(time.time() - start_time)
                 loss_window.append(loss)
 
                 message = 'Step %-7d [%.03f sec/step, loss=%.05f, avg_loss=%.05f]' % (
-                        step, time_window.average, loss, loss_window.average)
-                log(message, slack=(step % config.checkpoint_interval == 0))
+                        step, time_window.average, loss, loss_window.average)  # message 표시 관련 내용
+                log(message, slack=(step % config.checkpoint_interval == 0))  # log에 message 출력 및 slack 관련 코드
 
-                if loss > 100 or math.isnan(loss):
-                    log('Loss exploded to %.05f at step %d!' % (loss, step), slack=True)
-                    raise Exception('Loss Exploded')
+                if loss > 100 or math.isnan(loss):  # 만약 loss 값이 100이 넘거나 연산이 불가능한 형식으로 loss 값을 가졌을 때
+                    log('Loss exploded to %.05f at step %d!' % (loss, step), slack=True)  # 오류 출력
+                    raise Exception('Loss Exploded')  # 'Loss Exploded'라는 오류 출력
 
-                if step % config.summary_interval == 0:
+                if step % config.summary_interval == 0:  # 'step / 명령행 인자 값:default 100' 의 나머지가 0이라면
                     log('Writing summary at step: %d' % step)
 
                     feed_dict = {
                             **model.get_dummy_feed_dict(),
                             **test_model.get_dummy_feed_dict()
-                    }
+                    }  # 파라미터를 몇개 받을지 모르는 것에 대해서 dict 형식으로 받음
                     summary_writer.add_summary(sess.run(
-                            test_stats, feed_dict=feed_dict), step)
+                            test_stats, feed_dict=feed_dict), step)  # 텐서 보드(그래프)에 데이터 추가
 
-                if step % config.checkpoint_interval == 0:
+                if step % config.checkpoint_interval == 0:  # 'step / 명령행 인자 값:default 1000'의 나머지가 0이라면
                     log('Saving checkpoint to: %s-%d' % (checkpoint_path, step))
-                    saver.save(sess, checkpoint_path, global_step=step)
+                    saver.save(sess, checkpoint_path, global_step=step)  # saver 에 저장
 
-                if step % config.test_interval == 0:
+                if step % config.test_interval == 0:  # 'step / 명령행 인자 값:default 500'의 나머지가 0이라면
                     log('Saving audio and alignment...')
-                    num_test = config.num_test
+                    num_test = config.num_test  # 명령행 인자 값 --num_test_per_speaker를 num_test에 지정(default:2)
 
                     fetches = [
                             model.inputs[:num_test],
@@ -268,15 +268,16 @@ def train(log_dir, config):
                             test_model.inputs[:num_test],
                             test_model.linear_outputs[:num_test],
                             test_model.alignments[:num_test],
-                    ]
+                    ]  # 각각의 함수 또는 클래스 내의 값들을 리스트로 num_test까지만 가져와서 리스트로 저장
+
                     feed_dict = {
                             **model.get_dummy_feed_dict(),
                             **test_model.get_dummy_feed_dict()
-                    }
+                    }  # 파라미터를 몇개 받을지 모르는 것에 대해서 dict 형식으로 받음
 
                     sequences, spectrograms, alignments, \
                             test_sequences, test_spectrograms, test_alignments = \
-                                    sess.run(fetches, feed_dict=feed_dict)
+                                    sess.run(fetches, feed_dict=feed_dict)  # 각각의 변수들에 fetches를 대응
 
                     save_and_plot(sequences[:1], spectrograms[:1], alignments[:1],
                             log_dir, step, loss, "train")
